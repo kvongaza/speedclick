@@ -69,7 +69,7 @@ cellsArray.forEach(el => el.addEventListener('mousedown', () => {
     if (!countdown) startTimer();
     // el.state = el.state;
     if (el.state == "black") {
-        multiCount = Math.min(multiCount + 1, 25);
+        multiCount = Math.min(multiCount + 2.5, 25);
         multiBarEl.style.width = `${multiCount/25*100}%`;
 
         score += calculateBonus(); // score equals prevScore + 1*multiplier.
@@ -95,7 +95,7 @@ const startTimer = (duration = 30) => {
 
     countdown = setInterval(() => {
         duration -= 0.05;
-        multiCount = Math.max(multiCount - .1, 0);
+        multiCount = Math.max(multiCount - .5, 0);
         multiBarEl.style.width = `${multiCount/25*100}%`;
 
         const minutes = Math.round(duration / 60).toString().padStart(2, "0");
