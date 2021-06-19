@@ -29,6 +29,7 @@ const flipRandomToBlack = (count) => {
 Dynamically update the multiBar with each black tile clicked.
 Constantly reduce the multiBar by 1 at a set rate. (E.g., 1 every 0.5s)
 Calculate score based on the current multiCount value, for a given interval.
+..
 */
 
 let multiCount = 0; //grow this for each black tile clicked. Decrement it constantly.
