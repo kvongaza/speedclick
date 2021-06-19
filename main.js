@@ -33,23 +33,22 @@ Calculate score based on the current multiCount value, for a given interval.
 */
 
 let multiCount = 0; //grow this for each black tile clicked. Decrement it constantly.
+const multiBarEl = document.querySelector("#multiBar");
 
-const calculateBonus = (multiCount) => {
-    if (0 <= multiCount <= 5) {
+const calculateBonus = () => {
+    if (multiCount < 5) {
         return 1;
     }
-    if (6 <= multiCount <= 10) {
+    if (multiCount < 10) {
         return 2;
     }
-    if (11 <= multiCount <= 15) {
+    if (multiCount < 15) {
         return 3;
     }
-    if (16 <= multiCount <= 20) {
+    if (multiCount < 20) {
         return 4;
     }
-    if (21 <= multiCount) {
-        return 5;
-    }
+    return 5;
 };
 
 
@@ -70,10 +69,12 @@ cellsArray.forEach(el => el.addEventListener('mousedown', () => {
     if (!countdown) startTimer();
     // el.state = el.state;
     if (el.state == "black") {
-        multiCount++;
-        score = score + calculateBonus(multiCount); // score equals prevScore + 1*multiplier.
-        // score++;
+        multiCount = Math.min(multiCount + 1, 25);
+        multiBarEl.style.width = `${multiCount/25*100}%`;
+
+        score += calculateBonus(); // score equals prevScore + 1*multiplier.
         scoreEl.textContent = score;
+        
         flipRandomToBlack(1);
         el.state = "white";
         el.style.backgroundColor = "white";
@@ -86,20 +87,24 @@ cellsArray.forEach(el => el.addEventListener('mousedown', () => {
     }
 }));
 
+// TODO: requestAnimationFrame instead of setInterval. 
+// (Run at framerate to do the updates smoothly)
 // start timer
 const startTimer = (duration = 30) => {
     if (countdown) clearInterval(countdown);
 
     countdown = setInterval(() => {
-        duration--;
+        duration -= 0.05;
+        multiCount = Math.max(multiCount - .1, 0);
+        multiBarEl.style.width = `${multiCount/25*100}%`;
 
-        const minutes = parseInt(duration / 60, 10).toString().padStart(2, "0");
-        const seconds = parseInt(duration % 60, 10).toString().padStart(2, "0");
+        const minutes = Math.round(duration / 60).toString().padStart(2, "0");
+        const seconds = Math.round(duration % 60).toString().padStart(2, "0");
 
         timeEl.textContent = minutes + ":" + seconds;
 
-        if (duration === 0) lose("Times up!");
-    }, 1000);
+        if (duration <= 0) lose("Times up!");
+    }, 50);
 }
 
 // you LOSE
@@ -108,6 +113,8 @@ const lose = (message) =>
         alert(message);
 
         multiCount = 0;
+        multiBarEl.style.width = `0%`;
+
         score = 0;
         scoreEl.textContent = score;
 
