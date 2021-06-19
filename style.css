@@ -1,0 +1,57 @@
+/* Example Styling */
+/* div, #unique, body span span {
+    color: red;
+
+}
+
+body span span {
+    filter: drop-shadow(3px 3px 3px black);
+
+}
+
+div, span {
+    background-color: #ccc;
+} */
+
+.main-title {
+    text-align: center;
+}
+
+.secondary {
+    display: flex;
+    justify-content: space-around;
+  }
+
+.grid span {border: 1px solid grey;}
+.grid span:not(:last-child) {border-right: 0;}
+.grid div:not(:last-child) span {border-bottom: 0;}
+
+.grid span {
+    display: inline-block;
+    width: 10vw;
+    height: 10vw;
+    border-top: 1px solid grey;
+    border-left: 1px solid grey;
+}
+
+.grid span:last-child {border-right: 1px solid grey;}
+.grid div:last-child span {border-bottom: 1px solid grey;}
+
+.grid div {
+    text-align: center;
+    line-height: 10vw;
+    height: 10vw;
+}
+
+#streakBar {
+    width: 30vw;
+    margin: auto;
+    margin-top: 3vw;
+    background-color: rgba(60, 60, 250, 0.637);
+}
+
+#multiBar {
+    width: 0%;
+    height: 1.5vw;
+    background-color: rgba(22, 206, 22, 0.801);
+}
