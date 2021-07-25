@@ -51,6 +51,10 @@ const calculateBonus = () => {
     return 5;
 };
 
+const calculateCPS = (timeElapsed) => {
+    return clicks / (30.00 - timeElapsed);
+};
+
 
 // initialize three random squares to be black
 const cellsArray = Array.from(document.querySelectorAll(".grid span"));
@@ -61,9 +65,12 @@ flipRandomToBlack(3);
 // -> change clicked tile to white (destination color)
 
 let score = 0;
+let clicks = 0;
+let cps = 0.00;
 let countdown;
 const scoreEl = document.querySelector("#score");
 const timeEl = document.querySelector("#time");
+const cpsEl = document.querySelector("#cps");
 
 cellsArray.forEach(el => el.addEventListener('mousedown', () => {
     if (!countdown) startTimer();
@@ -74,6 +81,8 @@ cellsArray.forEach(el => el.addEventListener('mousedown', () => {
 
         score += calculateBonus(); // score equals prevScore + 1*multiplier.
         scoreEl.textContent = score;
+
+        clicks += 1;
         
         flipRandomToBlack(1);
         el.state = "white";
@@ -102,6 +111,9 @@ const startTimer = (duration = 30) => {
         const seconds = Math.round(duration % 60).toString().padStart(2, "0");
 
         timeEl.textContent = minutes + ":" + seconds;
+        
+        cps = calculateCPS(duration);
+        cpsEl.textContent = cps.toFixed(2);
 
         if (duration <= 0) lose("Times up!");
     }, 50);
@@ -118,12 +130,20 @@ const lose = (message) =>
         score = 0;
         scoreEl.textContent = score;
 
+        clicks = 0;
+        cpsEl.textContent = "0.00";
+
         clearInterval(countdown);
         countdown = undefined;
         timeEl.textContent = "00:30";
     }, 0);
 
 
+/* TODO:
+-Add visual for score quantity on screen post click (flash tile green, text in red (score))
+-High score
+-Highest CPS averaged over 30s
+*/ 
 
 
 // Random notes
