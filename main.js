@@ -25,13 +25,6 @@ const flipRandomToBlack = (count) => {
 }
 
 // Score Multiplier
-/* TODO: 
-Dynamically update the multiBar with each black tile clicked.
-Constantly reduce the multiBar by 1 at a set rate. (E.g., 1 every 0.5s)
-Calculate score based on the current multiCount value, for a given interval.
-..
-*/
-
 let multiCount = 0; //grow this for each black tile clicked. Decrement it constantly.
 const multiBarEl = document.querySelector("#multiBar");
 
@@ -52,29 +45,27 @@ const calculateBonus = () => {
 };
 
 const calculateCPS = (timeElapsed) => {
-    return clicks / (30.00 - timeElapsed);
+    return clicks / timeElapsed;
 };
-
 
 // initialize three random squares to be black
 const cellsArray = Array.from(document.querySelectorAll(".grid span"));
 flipRandomToBlack(3);
 
-// When a cell is clicked
-// Logic: if clicked tile is black -> score++, find white tile in array -> change it to black
-// -> change clicked tile to white (destination color)
-
 let score = 0;
 let clicks = 0;
-let cps = 0.00;
+let cps = 0;
+let elapsed = 0;
 let countdown;
+
 const scoreEl = document.querySelector("#score");
 const timeEl = document.querySelector("#time");
 const cpsEl = document.querySelector("#cps");
 
+// When a cell is clicked
 cellsArray.forEach(el => el.addEventListener('mousedown', () => {
     if (!countdown) startTimer();
-    // el.state = el.state;
+
     if (el.state == "black") {
         multiCount = Math.min(multiCount + 2.5, 25);
         multiBarEl.style.width = `${multiCount/25*100}%`;
@@ -82,42 +73,48 @@ cellsArray.forEach(el => el.addEventListener('mousedown', () => {
         score += calculateBonus(); // score equals prevScore + 1*multiplier.
         scoreEl.textContent = score;
 
-        clicks += 1;
+        clicks += 1; // track total clicks
         
         flipRandomToBlack(1);
         el.state = "white";
         el.style.backgroundColor = "white";
-    }
-    else {
-        // alert("You Lose!");
-        lose("You Lose!");
-        // score = 0;
-        // scoreEl.textContent = score;
-    }
+    } else lose("You Lose!");
 }));
 
 // TODO: requestAnimationFrame instead of setInterval. 
 // (Run at framerate to do the updates smoothly)
+
 // start timer
-const startTimer = (duration = 30) => {
+const startTimer = (originalDuration = 30) => {
+    let duration = originalDuration;
     if (countdown) clearInterval(countdown);
 
     countdown = setInterval(() => {
-        duration -= 0.05;
+        duration = Math.max(duration - 0.05, 0);
+        elapsed = originalDuration - duration;
         multiCount = Math.max(multiCount - .5, 0);
         multiBarEl.style.width = `${multiCount/25*100}%`;
 
-        const minutes = Math.round(duration / 60).toString().padStart(2, "0");
-        const seconds = Math.round(duration % 60).toString().padStart(2, "0");
+        const minutes = Math.floor(duration / 60).toString().padStart(2, "0");
+        const seconds = Math.floor(duration % 60).toString().padStart(2, "0");
+        const centis = (duration % 1).toFixed(2).slice(2).padEnd(2, "0");
 
-        timeEl.textContent = minutes + ":" + seconds;
+        timeEl.textContent = minutes + ":" + seconds + "." + centis;
         
-        cps = calculateCPS(duration);
+        // real time cps
+        cps = calculateCPS(elapsed);
         cpsEl.textContent = cps.toFixed(2);
 
         if (duration <= 0) lose("Times up!");
     }, 50);
-}
+};
+
+const prevScoreEl = document.querySelector("#prev-score");
+const prevCpsEl = document.querySelector("#prev-cps");
+const hiScoreEl = document.querySelector(".hi-score .value");
+const hiScoreTimeEl = document.querySelector(".hi-score .time-elapsed");
+const hiCpsEl = document.querySelector(".hi-cps .value");
+const hiCpsTimeEl = document.querySelector(".hi-cps .time-elapsed");
 
 // you LOSE
 const lose = (message) =>
@@ -127,28 +124,31 @@ const lose = (message) =>
         multiCount = 0;
         multiBarEl.style.width = `0%`;
 
+        prevScoreEl.textContent = score;
+        if (parseInt(hiScoreEl.textContent) < score) {
+            hiScoreEl.textContent = score;
+            hiScoreTimeEl.textContent = elapsed.toFixed(2);
+        }
+
         score = 0;
         scoreEl.textContent = score;
+
+        prevCpsEl.textContent = cps.toFixed(2);
+        if (parseFloat(hiCpsEl.textContent) < cps) {
+            hiCpsEl.textContent = prevCpsEl.textContent;
+            hiCpsTimeEl.textContent = elapsed.toFixed(2);
+        }
 
         clicks = 0;
         cpsEl.textContent = "0.00";
 
         clearInterval(countdown);
         countdown = undefined;
-        timeEl.textContent = "00:30";
+        timeEl.textContent = "00:30.00";
     }, 0);
-
 
 /* TODO:
 -Add visual for score quantity on screen post click (flash tile green, text in red (score))
--High score
--Highest CPS averaged over 30s
+-localStorage.setItem("a", "b");
+-localStorage.getItem("a") => "b"
 */ 
-
-
-// Random notes
-// 1) Renaming flipRandomToBlack to something like changeColor, and make it accept an actual element instead of an index (so you'd pass  cellsArray[element]).
-// 2) Implement an actual flipRandomToBlack, which is basically lines 60-63. You can then just call it three times.
-// 3) Your event listener can then call changeColor(element, "white") and then flipRandomToBlack() (or in reverse order if you want to ensure the cell moves).
-// potential time functions to use: setTimeout, setInterval, requestAnimationFrame
-// https://stackoverflow.com/questions/20618355/how-to-write-a-countdown-timer-in-javascript
